@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit dengan Metode Euler</title>
+    <style>
+        canvas {
+            background: black;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="solarSystem"></canvas>
+    <script>
+        const canvas = document.getElementById('solarSystem');
+        const ctx = canvas.getContext('2d');
+
+        // Sesuaikan ukuran canvas agar responsif
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const sun = { x: canvas.width / 2, y: canvas.height / 2, radius: 50, color: 'yellow' };
+        const planets = [
+            { radius: 10, distance: 100, angle: 0, color: 'blue', angularVelocity: 0.02, name: 'Laura A' },
+            { radius: 15, distance: 130, angle: 0, color: 'red', angularVelocity: 0.015, name: 'Laura B' },
+            { radius: 20, distance: 160, angle: 0, color: 'green', angularVelocity: 0.01, name: 'Laura C' },
+            { radius: 12, distance: 190, angle: 0, color: 'orange', angularVelocity: 0.025, name: 'Laura D' },
+            { radius: 18, distance: 220, angle: 0, color: 'purple', angularVelocity: 0.018, name: 'Laura E' }
+        ];
+
+        function drawSun() {
+            ctx.beginPath();
+            ctx.fillStyle = sun.color;
+            ctx.arc(sun.x, sun.y, sun.radius, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function updatePlanets(deltaTime) {
+            planets.forEach(planet => {
+                // Metode Euler untuk memperbarui sudut posisi planet
+                planet.angle += planet.angularVelocity * deltaTime;
+
+                // Normalisasi sudut agar tetap dalam rentang 0 hingga 2π
+                if (planet.angle > 2 * Math.PI) {
+                    planet.angle -= 2 * Math.PI;
+                }
+            });
+        }
+
+        function drawPlanets() {
+            planets.forEach(planet => {
+                // Gambar jalur orbit
+                ctx.beginPath();
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 1;
+                ctx.arc(sun.x, sun.y, planet.distance, 0, 2 * Math.PI);
+                ctx.stroke();
+
+                // Hitung posisi planet berdasarkan sudut
+                const planetX = sun.x + planet.distance * Math.cos(planet.angle);
+                const planetY = sun.y + planet.distance * Math.sin(planet.angle);
+
+                // Gambar planet
+                ctx.beginPath();
+                ctx.fillStyle = planet.color;
+                ctx.arc(planetX, planetY, planet.radius, 0, 2 * Math.PI);
+                ctx.fill();
+
+                // Tampilkan nama planet
+                ctx.fillStyle = 'white';
+                ctx.fillText(${planet.name}, planetX + 10, planetY);
+            });
+        }
+
+        let lastTime = 0;
+        function draw(time) {
+            const deltaTime = (time - lastTime) / 1000; // Hitung deltaTime dalam detik
+            lastTime = time;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSun(); // Gambar matahari
+            updatePlanets(deltaTime); // Perbarui posisi planet
+            drawPlanets(); // Gambar planet
+
+            requestAnimationFrame(draw);
+        }
+
+        draw(0);
+    </script>
+</body>
+</html>
